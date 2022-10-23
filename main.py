@@ -16,3 +16,4 @@ if __name__ == "__main__":
     total_distance = tsp.calculate_total_distance(tour)
     tsp.print(tour)
     print(total_distance)
+    tsp.christofides_tour()

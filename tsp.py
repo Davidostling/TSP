@@ -1,4 +1,5 @@
 from point import Point
+from helper import prims_algorithm
 from typing import List
 
 
@@ -11,14 +12,16 @@ class TSP(object):
 
     def add_point(self, p: Point) -> None:
         for i in range(0, p.id):
-            self.costs[i][p.id] = self.costs[p.id][i] = self.points[i].distanceFrom(p)
+            self.costs[i][p.id] = self.costs[p.id][i] = self.points[i].distanceFrom(
+                p)
         self.points.append(p)
 
     def print_cost_matrix(self) -> None:
         for i in range(0, len(self.costs)):
             for j in range(0, len(self.costs[i])):
                 print(
-                    "(" + str(i) + ", " + str(j) + ") = " + str(self.costs[i][j]) + " ",
+                    "(" + str(i) + ", " + str(j) + ") = " +
+                    str(self.costs[i][j]) + " ",
                     end="",
                 )
             print("")
@@ -27,6 +30,7 @@ class TSP(object):
         total = 0.0
         for i in range(len(tour) - 1):
             total += tour[i].distanceFrom(tour[i + 1])
+        total += tour[-1].distanceFrom(tour[0])
         return total
 
     def print(self, tour: List[Point]) -> None:
@@ -50,3 +54,8 @@ class TSP(object):
             self.tour.append(best_next)
             current_point.visit()
         return self.tour
+
+    def christofides_tour(self) -> List[Point]:
+        # Construct MST using Prim's algorithm
+        mst = prims_algorithm(self.points, self.costs)
+        print(mst)

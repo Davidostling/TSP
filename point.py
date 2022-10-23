@@ -22,3 +22,12 @@ class Point(object):
         delta_x = float(self.x - p.x)
         delta_y = float(self.y - p.y)
         return math.sqrt(pow(delta_x, 2) + pow(delta_y, 2))
+
+    def __repr__(self):
+        return str(self.id)
+
+    def __eq__(self, other: "Point"):
+        return self.id == other.id
+
+    def __lt__(self, other: "Point"):
+        return self.id < other.id
