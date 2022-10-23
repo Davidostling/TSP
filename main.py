@@ -1,15 +1,18 @@
 import sys
+from tsp import TSP
+from point import Point
 
-num_cities = sys.stdin.readline()
 
-cities = []
-first_city = sys.stdin.readline().split()
-first_city = (float(first_city[0]), float(first_city[1]), 0)
-for index in range(int(num_cities)-1):
-    city = sys.stdin.readline().split()
-    cities.append((float(city[0]),float(city[1]), index+1))
+if __name__ == "__main__":
+    number_of_points = int(sys.stdin.readline())
+    tsp = TSP(number_of_points)
+    for index in range(number_of_points):
+        line_array = sys.stdin.readline().split()
+        tsp.add_point(Point(float(line_array[0]), float(line_array[1])))
 
-cities.sort()
-cities.insert(0, first_city)
-for city in cities:
-    print(city[2])
+    #### start solving ####
+    tsp.print_cost_matrix()
+    tour = tsp.solve_greedy()
+    total_distance = tsp.calculate_total_distance(tour)
+    tsp.print(tour)
+    print(total_distance)
