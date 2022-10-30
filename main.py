@@ -11,9 +11,6 @@ if __name__ == "__main__":
         tsp.add_point(Point(float(line_array[0]), float(line_array[1])))
 
     #### start solving ####
-    tsp.print_cost_matrix()
     tour = tsp.solve_greedy()
-    total_distance = tsp.calculate_total_distance(tour)
+    tour = tsp.two_opt(tour)
     tsp.print(tour)
-    print(total_distance)
-    tsp.christofides_tour()
