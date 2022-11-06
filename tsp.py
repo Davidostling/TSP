@@ -68,9 +68,6 @@ class TSP(object):
             if self._is_exit_time_reached():
                 return tour
             for i in range(1, self.n - 2):
-                best_gain = 0
-                best_i = 0
-                best_j = 0
                 for j in range(i + 1, self.n - 1):
                     if self._is_exit_time_reached():
                         return tour
@@ -81,13 +78,11 @@ class TSP(object):
                     before = self.costs[A.id][B.id] + self.costs[C.id][D.id]
                     after = self.costs[A.id][C.id] + self.costs[B.id][D.id]
                     gain = before - after
-                    if gain > best_gain:
-                        best_gain = gain
-                        best_i = i
-                        best_j = j
-                if best_gain > 0:
-                    tour = self._two_opt_swap(tour, best_i, best_j)
-                    improve = True
+                    if gain > 0:
+                        tour = self._two_opt_swap(tour, i, j)
+                        improve = True
+                        # i = j + 1
+                        # break
         return tour
 
     def _two_opt_swap(self, tour: List[Point], p1_id: int, p2_id: int) -> List[Point]:
@@ -97,14 +92,8 @@ class TSP(object):
             _tmp = p1_id
             p1_id = p2_id
             p2_id = _tmp
-        new_tour: List[Point] = list()
-        for i in range(p1_id):
-            new_tour.append(tour[i])
-        for i in range(p2_id, p1_id - 1, -1):
-            new_tour.append(tour[i])
-        for i in range(p2_id + 1, self.n):
-            new_tour.append(tour[i])
-        return new_tour
+        tour[p1_id : p2_id + 1] = reversed(tour[p1_id : p2_id + 1])
+        return tour
 
     def two_half_opt(self, tour: List[Point]) -> List[Point]:
         improve = True
