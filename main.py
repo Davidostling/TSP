@@ -12,5 +12,5 @@ if __name__ == "__main__":
 
     #### start solving ####
     tour = tsp.solve_greedy()
-    tour = tsp.two_opt(tour)
+    tour = tsp.two_half_opt(tour)
     tsp.print(tour)

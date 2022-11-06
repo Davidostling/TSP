@@ -1,7 +1,6 @@
 from point import Point
 from typing import List
 from datetime import datetime
-from random import randrange
 
 
 class TSP(object):
@@ -45,7 +44,7 @@ class TSP(object):
             print(tour[i].id)
 
     def solve_greedy(self) -> List[Point]:
-        current_point = self.points[randrange(self.n)]
+        current_point = self.points[0]
         self.tour.append(current_point)
         current_point.visit()
         for i in range(1, self.n):
@@ -62,96 +61,106 @@ class TSP(object):
             current_point.visit()
         return self.tour
 
-    def two_point_five_opt(self, tour: List[Point]) -> List[Point]:
-        best_distance = self.calculate_total_distance(tour)
+    def two_opt(self, tour: List[Point]) -> List[Point]:
         improve = True
         while improve:
             improve = False
             if self._is_exit_time_reached():
                 return tour
-            for i in range(self.n):
-                for k in range(i + 3, self.n):
+            for i in range(1, self.n - 2):
+                best_gain = 0
+                best_i = 0
+                best_j = 0
+                for j in range(i + 1, self.n - 1):
                     if self._is_exit_time_reached():
                         return tour
-                    p1 = tour[i]
-                    p5 = tour[k]
-                    p2 = tour[((i + 1) % self.n)]
-                    p3 = tour[((i + 2) % self.n)]
-                    p4 = tour[((k - 1) % self.n)]
-                    distance = (
-                        self.costs[p1.id][p2.id]
-                        + self.costs[p3.id][p4.id]
-                        + self.costs[p4.id][p5.id]
-                    )
-                    distance -= (
-                        self.costs[p1.id][p3.id]
-                        + self.costs[p4.id][p2.id]
-                        + self.costs[p2.id][p5.id]
-                    )
-                    if distance > 0:
-                        improve = True
-                        for l in range(i + 2, k):
-                            tour[((l - 1) % self.n)] = tour[l]
-                        tour[((k - 1) % self.n)] = p2
-                        best_distance -= distance
-                    p2 = tour[((i + 1) % self.n)]
-                    p3 = tour[((k - 2) % self.n)]
-                    p4 = tour[((k - 1) % self.n)]
-                    distance = (
-                        self.costs[p1.id][p2.id]
-                        + self.costs[p3.id][p4.id]
-                        + self.costs[p4.id][p5.id]
-                    )
-                    distance -= (
-                        self.costs[p1.id][p4.id]
-                        + self.costs[p4.id][p2.id]
-                        + self.costs[p3.id][p5.id]
-                    )
-                    if distance > 0:
-                        improve = True
-                        l = k - 2
-                        while i < l:
-                            tour[((l + 1) % self.n)] = tour[l]
-                            l -= 1
-                        tour[((i + 1) % self.n)] = p4
-                        best_distance -= distance
+                    A = tour[i - 1]
+                    B = tour[i]
+                    C = tour[j]
+                    D = tour[j + 1]
+                    before = self.costs[A.id][B.id] + self.costs[C.id][D.id]
+                    after = self.costs[A.id][C.id] + self.costs[B.id][D.id]
+                    gain = before - after
+                    if gain > best_gain:
+                        best_gain = gain
+                        best_i = i
+                        best_j = j
+                if best_gain > 0:
+                    tour = self._two_opt_swap(tour, best_i, best_j)
+                    improve = True
         return tour
 
-    def two_opt(self, tour: List[Point]) -> List[Point]:
-        distance = best_distance = self.calculate_total_distance(tour)
+    def _two_opt_swap(self, tour: List[Point], p1_id: int, p2_id: int) -> List[Point]:
+        if p1_id == p2_id:
+            return tour
+        if p1_id > p2_id:
+            _tmp = p1_id
+            p1_id = p2_id
+            p2_id = _tmp
+        new_tour: List[Point] = list()
+        for i in range(p1_id):
+            new_tour.append(tour[i])
+        for i in range(p2_id, p1_id - 1, -1):
+            new_tour.append(tour[i])
+        for i in range(p2_id + 1, self.n):
+            new_tour.append(tour[i])
+        return new_tour
+
+    def two_half_opt(self, tour: List[Point]) -> List[Point]:
         improve = True
         while improve:
             improve = False
             if self._is_exit_time_reached():
                 return tour
-            for i in range(self.n):
-                for k in range(i + 1, self.n):
+            for i in range(0, self.n - 3):
+                for j in range(i + 3, self.n):
                     if self._is_exit_time_reached():
                         return tour
-                    p1 = tour[((i - 1) % self.n)]
-                    p2 = tour[i]
-                    p3 = tour[k]
-                    p4 = tour[((k + 1) % self.n)]
-
-                    distance = (
-                        self.costs[p1.id][p2.id]
-                        + self.costs[p3.id][p4.id]
-                        - (self.costs[p1.id][p3.id] + self.costs[p2.id][p4.id])
+                    # Given A-B-C...D-E try A-C...D-B-E
+                    A = tour[i]
+                    B = tour[i + 1]
+                    C = tour[i + 2]
+                    D = tour[j - 1]
+                    E = tour[j]
+                    before = (
+                        self.costs[A.id][B.id]
+                        + self.costs[B.id][C.id]
+                        + self.costs[C.id][D.id]
                     )
-
-                    if distance > 0:
+                    after = (
+                        self.costs[A.id][C.id]
+                        + self.costs[D.id][B.id]
+                        + self.costs[B.id][E.id]
+                    )
+                    gain = before - after
+                    if gain > 0:
                         improve = True
-                        _from = i
-                        _to = k
-                        if (_to - _from) % 2 == 0:
-                            limit = int((_to - _from) / 2)
-                        else:
-                            limit = int((_to - _from - 1) / 2)
-                        for l in range(limit + 1):
-                            m = _from + l
-                            n = _to - l
-                            temp = tour[m]
-                            tour[m] = tour[n]
-                            tour[n] = temp
-                        best_distance -= distance
+                        _tmp = B
+                        for k in range(i + 2, j):
+                            tour[k - 1] = tour[k]
+                        tour[j - 1] = _tmp
+
+                    # Given A-B...C-D-E try A-D-B...C-E
+                    A = tour[i]
+                    B = tour[i + 1]
+                    C = tour[j - 2]
+                    D = tour[j - 1]
+                    E = tour[j]
+                    before = (
+                        self.costs[A.id][B.id]
+                        + self.costs[C.id][D.id]
+                        + self.costs[D.id][E.id]
+                    )
+                    after = (
+                        self.costs[A.id][D.id]
+                        + self.costs[D.id][B.id]
+                        + self.costs[C.id][E.id]
+                    )
+                    gain = before - after
+                    if gain > 0:
+                        improve = True
+                        _tmp = D
+                        for k in range(j - 2, i, -1):
+                            tour[k + 1] = tour[k]
+                        tour[i + 1] = _tmp
         return tour
