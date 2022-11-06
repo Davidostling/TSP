@@ -82,7 +82,7 @@ class TSP(object):
                         tour = self._two_opt_swap(tour, i, j)
                         improve = True
                         print("improved: ")
-                        print(self.print(tour))
+                        self.print(tour)
                         # i = j + 1
                         # break
         return tour
