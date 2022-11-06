@@ -67,7 +67,7 @@ class TSP(object):
             improve = False
             if self._is_exit_time_reached():
                 return tour
-            for i in range(1, self.n - 2):
+            for i in range(1, self.n - 1):
                 for j in range(i + 1, self.n - 1):
                     if self._is_exit_time_reached():
                         return tour
@@ -81,6 +81,8 @@ class TSP(object):
                     if gain > 0:
                         tour = self._two_opt_swap(tour, i, j)
                         improve = True
+                        print("improved: ")
+                        print(self.print(tour))
                         # i = j + 1
                         # break
         return tour
