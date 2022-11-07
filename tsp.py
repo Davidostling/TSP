@@ -67,24 +67,26 @@ class TSP(object):
             improve = False
             if self._is_exit_time_reached():
                 return tour
-            for i in range(1, self.n - 1):
-                for j in range(i + 1, self.n - 1):
+            for i in range(0, self.n):
+                for j in range(i + 1, self.n):
                     if self._is_exit_time_reached():
                         return tour
-                    A = tour[i - 1]
+                    # Given A-B...C-D try A-C...B-D
+                    A = tour[(i - 1) % self.n]
                     B = tour[i]
                     C = tour[j]
-                    D = tour[j + 1]
+                    D = tour[(j + 1) % self.n]
                     before = self.costs[A.id][B.id] + self.costs[C.id][D.id]
                     after = self.costs[A.id][C.id] + self.costs[B.id][D.id]
                     gain = before - after
+                    print("iterating + (" + str(i) + "," + str(j) + ")")
                     if gain > 0:
                         tour = self._two_opt_swap(tour, i, j)
                         improve = True
                         print("improved: ")
                         self.print(tour)
-                        # i = j + 1
-                        # break
+                        i = j + 2
+                        break
         return tour
 
     def _two_opt_swap(self, tour: List[Point], p1_id: int, p2_id: int) -> List[Point]:
@@ -116,7 +118,7 @@ class TSP(object):
                     before = (
                         self.costs[A.id][B.id]
                         + self.costs[B.id][C.id]
-                        + self.costs[C.id][D.id]
+                        + self.costs[D.id][E.id]
                     )
                     after = (
                         self.costs[A.id][C.id]
