@@ -1,5 +1,5 @@
 from point import Point
-from helper import prims_algorithm, mst_to_adjacency_list, dfs, prims_algorithm_quadratic, tour_as_edges, two_opt_iterate, two_opt_step
+from helper import prims_algorithm, mst_to_adjacency_list, dfs, prims_algorithm_quadratic, tour_as_edges, two_opt_iterate, two_opt_step, calculate_total_distance_edges, simulated_annealing
 from typing import List
 import time
 
@@ -26,6 +26,7 @@ class TSP(object):
                     end="",
                 )
             print("")
+
 
     def calculate_total_distance(self, tour: List[Point]) -> float:
         total = 0.0
@@ -68,15 +69,29 @@ class TSP(object):
         #tour = dfs(mst_as_list, self.points[0])
         tour = self.solve_greedy()
         edges = tour_as_edges(tour)
+       
         #dist_first = self.calculate_total_distance(tour)
         #print(dist_first)
         
-        two_opt_iterate(edges, self.costs, start_time)
- 
-        tour = [x[0] for x in edges]
+        if len(tour) > 250:
+            two_opt_iterate(edges, self.costs,start_time)
+            best_edges, best_score = simulated_annealing(edges, self.costs, start_time, alpha=0.9)
+        elif len(tour) > 150:
+            best_edges, best_score = simulated_annealing(edges, self.costs, start_time, alpha=0.95)
+            two_opt_iterate(best_edges, self.costs, start_time)   
+        elif len(tour) > 100:
+            best_edges, best_score = simulated_annealing(edges, self.costs, start_time, alpha=0.99)
+            two_opt_iterate(best_edges, self.costs, start_time)   
+        else:
+            best_edges, best_score = simulated_annealing(edges, self.costs, start_time, alpha=0.999)
+            two_opt_iterate(best_edges, self.costs, start_time)
+        
+
+        tour = [x[0] for x in best_edges]
         #dist_second = self.calculate_total_distance(tour)
         #print(dist_second)
-
+        #print(best_score)
+        #print(calculate_total_distance_edges(best_edges, self.costs))
 
         return tour
 

@@ -6,6 +6,9 @@ from typing import List
 from point import Point
 import time
 import heapq
+import sys
+import random
+import math
 
 
 def prims_algorithm(points: List[Point], costs: List[List[float]]):
@@ -90,25 +93,39 @@ def dfs(graph, start, visited=None, path=[]):
             dfs(graph, next, visited, path)
     return path
 
-def two_opt_swap(edges:List[tuple], costs: List[List[float]], first: int, second: int):
+''' Checks if the swap '''
+def two_opt_check(edges:List[tuple], costs: List[List[float]], first: int, second: int):
     e_1 = edges[first]
     e_2 = edges[second]
     current_cost = costs[e_1[0].id][e_1[1].id] + costs[e_2[0].id][e_2[1].id]
     new_cost = costs[e_1[0].id][e_2[0].id] + costs[e_1[1].id][e_2[1].id]
 
-    if new_cost < current_cost:
-        #print(e_1)
-        #print(e_2)
-        #print(f"found improvement from: {current_cost} to {new_cost}")
-        #print(edges)
-        edges[first] = (e_1[0],e_2[0])
-        edges[second] = (e_1[1], e_2[1])
-        edges[first+1:second] = list(map(lambda x : (x[1],x[0]), reversed(edges[first+1:second])))
-        #print("nuevo")
-        #print(edges)
+    ''' 
+    Check if the swap increases or decreases the cost
+    if the difference is positive, then the swap is an improvement 
+    '''
+    return current_cost - new_cost
+
+
+def two_opt_swap(edges:List[tuple], costs: List[List[float]], first: int, second: int):
+    ''' Swaps the edges found at the given indices '''
+    
+    e_1 = edges[first]
+    e_2 = edges[second]
+    edges[first] = (e_1[0],e_2[0])
+    edges[second] = (e_1[1], e_2[1])
+    edges[first+1:second] = list(map(lambda x : (x[1],x[0]), reversed(edges[first+1:second])))
+    
+    
+    
+
+def two_opt_check_swap(edges:List[tuple], costs: List[List[float]], first: int, second: int):
+    ''' Checks if the swap is an improvement and if so, performs the swap '''
+    if two_opt_check(edges, costs, first, second) > 0:
+        two_opt_swap(edges, costs, first, second)
         return True
-    else: 
-        return False
+    return False
+    
 
 def two_opt_step(edges:List[tuple], costs: List[List[float]], start_time:float, threshold):
     improved = False
@@ -118,13 +135,59 @@ def two_opt_step(edges:List[tuple], costs: List[List[float]], start_time:float, 
         for j in range(i+1, len(edges)):
             if (time.time() - start_time) > threshold:
                 return False
-            performed_swap = two_opt_swap(edges, costs, i, j)
+            performed_swap = two_opt_check_swap(edges, costs, i, j)
             if performed_swap:
                 improved =  performed_swap
                 i = j + 1
                 break
                 
     return improved
+
+def simulated_annealing(edges:List[tuple], costs: List[List[float]], start_time:float, threshold = 1.9, alpha = 0.999):
+    best_edges = edges.copy()
+
+    temperature = math.sqrt(len(edges))
+    best_score = calculate_total_distance_edges(edges, costs)
+    current_score = best_score
+    #print("Initial score: ", best_score)
+    while (time.time() - start_time) < threshold and temperature > 0.00001:
+        #print(temperature)
+        if temperature < 0.00001:
+            temperature = 0.00001
+
+        for i in range(len(edges)-2):
+            
+            for j in range(i+1, len(edges)):
+                if (time.time() - start_time) > threshold:
+                    return (best_edges, best_score)
+                value = two_opt_check(edges, costs, i, j)
+                if value > 0:
+                    # If the swap results in a reduced score, we always perform it
+                    two_opt_swap(edges, costs, i, j)
+                    current_score -= value
+                    # This implies that we have a new best score
+                    if current_score < best_score:
+                        best_score = current_score
+                        best_edges = edges.copy()
+                else:
+                    probability = random.uniform(0,1)
+                    
+                    acceptance_probability = math.exp(value / temperature)
+                    #print(value)
+
+                    #print("temperature: ", temperature)
+                    #print("acceptance probability: ", acceptance_probability)
+                    #print("probability: ", probability)
+                    #print("value: ", value)
+                    
+                    if probability < acceptance_probability:
+                        two_opt_swap(edges, costs, i, j)
+                        
+                        current_score = current_score - value
+
+        temperature = temperature * alpha
+    return (best_edges, best_score)
+
 
 def two_opt_iterate(edges:List[tuple], costs: List[List[float]], start_time:float, threshold = 1.9):
     stop_time = time.time() - start_time
@@ -142,3 +205,6 @@ def tour_as_edges(tour:List[Point]):
     edges.append((prev, tour[0]))
     return edges
     
+
+def calculate_total_distance_edges(edges:List[tuple], costs: List[List[float]]) -> float:
+    return sum([costs[edge[0].id][edge[1].id] for edge in edges])
