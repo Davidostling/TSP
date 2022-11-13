@@ -1,5 +1,9 @@
 from point import Point
-from helper import prims_algorithm, mst_to_adjacency_list, dfs, prims_algorithm_quadratic, tour_as_edges, two_opt_iterate, two_opt_step
+from helper import (
+    tour_as_edges,
+    two_opt_iterate,
+    two_opt_step,
+)
 from typing import List
 import time
 
@@ -13,16 +17,14 @@ class TSP(object):
 
     def add_point(self, p: Point) -> None:
         for i in range(0, p.id):
-            self.costs[i][p.id] = self.costs[p.id][i] = self.points[i].distanceFrom(
-                p)
+            self.costs[i][p.id] = self.costs[p.id][i] = self.points[i].distanceFrom(p)
         self.points.append(p)
 
     def print_cost_matrix(self) -> None:
         for i in range(0, len(self.costs)):
             for j in range(0, len(self.costs[i])):
                 print(
-                    "(" + str(i) + ", " + str(j) + ") = " +
-                    str(self.costs[i][j]) + " ",
+                    "(" + str(i) + ", " + str(j) + ") = " + str(self.costs[i][j]) + " ",
                     end="",
                 )
             print("")
@@ -56,29 +58,20 @@ class TSP(object):
             current_point.visit()
         return self.tour
 
-    def christofides_tour(self) -> List[Point]:
-        # Construct MST using Prim's algorithm
-        mst = prims_algorithm(self.points, self.costs)
-        print(mst)
-
     def two_approx(self) -> List[Point]:
         start_time = time.time()
-        #mst = prims_algorithm_quadratic(self.points, self.costs)
-        #mst_as_list = mst_to_adjacency_list(mst)
-        #tour = dfs(mst_as_list, self.points[0])
+        # mst = prims_algorithm_quadratic(self.points, self.costs)
+        # mst_as_list = mst_to_adjacency_list(mst)
+        # tour = dfs(mst_as_list, self.points[0])
         tour = self.solve_greedy()
         edges = tour_as_edges(tour)
-        #dist_first = self.calculate_total_distance(tour)
-        #print(dist_first)
-        
-        two_opt_iterate(edges, self.costs, start_time)
- 
-        tour = [x[0] for x in edges]
-        #dist_second = self.calculate_total_distance(tour)
-        #print(dist_second)
+        # dist_first = self.calculate_total_distance(tour)
+        # print(dist_first)
 
+        two_opt_iterate(edges, self.costs, start_time)
+
+        tour = [x[0] for x in edges]
+        # dist_second = self.calculate_total_distance(tour)
+        # print(dist_second)
 
         return tour
-
-
-         
