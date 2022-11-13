@@ -67,12 +67,12 @@ class TSP(object):
             improve = False
             if self._is_exit_time_reached():
                 return tour
-            for i in range(0, self.n):
+            for i in range(1, self.n - 1):
                 for j in range(i + 1, self.n):
                     if self._is_exit_time_reached():
                         return tour
                     # Given A-B...C-D try A-C...B-D
-                    A = tour[(i - 1) % self.n]
+                    A = tour[i - 1]
                     B = tour[i]
                     C = tour[j]
                     D = tour[(j + 1) % self.n]
@@ -85,7 +85,7 @@ class TSP(object):
                         improve = True
                         print("improved: ")
                         self.print(tour)
-                        i = j + 2
+                        i = j + 1
                         break
         return tour
 
