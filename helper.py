@@ -120,9 +120,12 @@ def two_opt_swap(edges:List[tuple], costs: List[List[float]], first: int, second
     
 
 def two_opt_check_swap(edges:List[tuple], costs: List[List[float]], first: int, second: int):
+    
     ''' Checks if the swap is an improvement and if so, performs the swap '''
     if two_opt_check(edges, costs, first, second) > 0:
+        
         two_opt_swap(edges, costs, first, second)
+        
         return True
     return False
     
@@ -137,16 +140,17 @@ def two_opt_step(edges:List[tuple], costs: List[List[float]], start_time:float, 
                 return False
             performed_swap = two_opt_check_swap(edges, costs, i, j)
             if performed_swap:
+               
                 improved =  performed_swap
                 i = j + 1
                 break
                 
     return improved
 
-def simulated_annealing(edges:List[tuple], costs: List[List[float]], start_time:float, threshold = 1.9, alpha = 0.999):
+def simulated_annealing(edges:List[tuple], costs: List[List[float]], start_time:float, threshold = 1.85, alpha = 0.999):
     best_edges = edges.copy()
 
-    temperature = math.sqrt(len(edges))
+    temperature = len(edges)
     best_score = calculate_total_distance_edges(edges, costs)
     current_score = best_score
     #print("Initial score: ", best_score)

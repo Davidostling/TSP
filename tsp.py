@@ -68,19 +68,20 @@ class TSP(object):
         #mst_as_list = mst_to_adjacency_list(mst)
         #tour = dfs(mst_as_list, self.points[0])
         tour = self.solve_greedy()
+        
+        
         edges = tour_as_edges(tour)
-       
+        
         #dist_first = self.calculate_total_distance(tour)
         #print(dist_first)
+
         
-        if len(tour) > 250:
+        if len(tour) > 180:
             two_opt_iterate(edges, self.costs,start_time)
             best_edges, best_score = simulated_annealing(edges, self.costs, start_time, alpha=0.9)
-        elif len(tour) > 150:
-            best_edges, best_score = simulated_annealing(edges, self.costs, start_time, alpha=0.95)
-            two_opt_iterate(best_edges, self.costs, start_time)   
+         
         elif len(tour) > 100:
-            best_edges, best_score = simulated_annealing(edges, self.costs, start_time, alpha=0.99)
+            best_edges, best_score = simulated_annealing(edges, self.costs, start_time, alpha=0.95)
             two_opt_iterate(best_edges, self.costs, start_time)   
         else:
             best_edges, best_score = simulated_annealing(edges, self.costs, start_time, alpha=0.999)
