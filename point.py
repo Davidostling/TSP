@@ -21,7 +21,7 @@ class Point(object):
     def distanceFrom(self, p: "Point") -> float:
         delta_x = float(self.x - p.x)
         delta_y = float(self.y - p.y)
-        return math.sqrt(pow(delta_x, 2) + pow(delta_y, 2))
+        return round(math.sqrt(pow(delta_x, 2) + pow(delta_y, 2)))
 
     def __repr__(self):
         return str(self.id)
