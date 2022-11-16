@@ -4,6 +4,7 @@ from helper import (
     two_opt_iterate,
     two_opt_step,
 )
+import random
 from typing import List
 import time
 
@@ -58,7 +59,7 @@ class TSP(object):
             current_point.visit()
         return self.tour
 
-    def two_approx(self) -> List[Point]:
+    def compute_path(self) -> List[Point]:
         start_time = time.time()
         # mst = prims_algorithm_quadratic(self.points, self.costs)
         # mst_as_list = mst_to_adjacency_list(mst)
@@ -68,10 +69,58 @@ class TSP(object):
         # dist_first = self.calculate_total_distance(tour)
         # print(dist_first)
 
-        two_opt_iterate(edges, self.costs, start_time)
+        best_edges = two_opt_randomized(tour, self.costs, start_time)
+        #two_opt_iterate(edges, self.costs, start_time)
 
         tour = [x[0] for x in edges]
         # dist_second = self.calculate_total_distance(tour)
-        # print(dist_second)
-
+        # print(dist_second
         return tour
+
+    def solve_randomized_two_opt(self) -> List[Point]:
+        threshold = 1.85
+        start_time = time.time()
+        hashed_tours = set()
+        tour = self.solve_greedy()
+        
+        tour_hash = hash(tuple([x.id for x in tour]))
+        hashed_tours.add(tour_hash)
+        edges = tour_as_edges(tour)
+        
+        two_opt_iterate(edges, self.costs, start_time, threshold=threshold)
+        best_tour = [x[0] for x in edges]
+        
+        best_cost = self.calculate_total_distance(best_tour)
+        
+       
+        while time.time() - start_time < threshold:
+            
+            random.shuffle(tour)
+            while hash(tuple([x.id for x in tour])) in hashed_tours:
+                random.shuffle(tour)
+            
+            new_edges = tour_as_edges(tour)
+
+            if time.time() - start_time > threshold:
+                break
+            two_opt_iterate(new_edges, self.costs, start_time, threshold=threshold)
+            if time.time() - start_time > threshold:
+                break
+            new_tour = [x[0] for x in new_edges]
+            new_cost = self.calculate_total_distance(new_tour)
+            #print("time: ", time.time() - start_time)
+            #print("current tour: ", tour)
+            #print("new cost: ", new_cost)
+            if new_cost < best_cost:
+                best_cost = new_cost
+                best_tour = new_tour
+            
+            tour_hash = hash(tuple([x.id for x in tour]))
+            hashed_tours.add(tour_hash)
+        
+        
+        #print("best cost: ", best_cost)
+        #print("time: ", time.time() - start_time)
+        return best_tour
+
+    

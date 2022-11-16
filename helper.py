@@ -3,6 +3,7 @@ Helper class containing various helper functions
 """
 from typing import List
 from point import Point
+import random
 import time
 
 
@@ -48,6 +49,8 @@ def two_opt_iterate(
     edges: List[tuple], costs: List[List[float]], start_time: float, threshold=1.9
 ):
     stop_time = time.time() - start_time
+    if stop_time > threshold:
+        return
     improved = two_opt_step(edges, costs, start_time, threshold)
     while improved and stop_time < threshold:
         improved = two_opt_step(edges, costs, start_time, threshold)
@@ -62,3 +65,4 @@ def tour_as_edges(tour: List[Point]):
         prev = tour[i]
     edges.append((prev, tour[0]))
     return edges
+

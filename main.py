@@ -18,7 +18,7 @@ if __name__ == "__main__":
         #tour = tsp.solve_greedy())
         #total_distance = tsp.calculate_total_distance(tour)
         
-        tour = tsp.two_approx()
+        tour = tsp.solve_greedy()
         
         tsp.print(tour)        
 
