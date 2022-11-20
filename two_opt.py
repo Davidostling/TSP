@@ -5,21 +5,23 @@ from typing import List
 from point import Point
 import time
 
+
 def tour_as_edges(tour: List[Point]):
-        """ 
-        Converts tour to list of edges.
+    """ 
+    Converts tour to list of edges.
 
-        :param tour: List of points 
-        :return: tour as list of edges
-        """
-        edges = []
-        prev = tour[0]
+    :param tour: List of points 
+    :return: tour as list of edges
+    """
+    edges = []
+    prev = tour[0]
 
-        for i in range(1, len(tour)):
-            edges.append((prev, tour[i]))
-            prev = tour[i]
-        edges.append((prev, tour[0]))
-        return edges
+    for i in range(1, len(tour)):
+        edges.append((prev, tour[i]))
+        prev = tour[i]
+    edges.append((prev, tour[0]))
+    return edges
+
 
 def two_opt_iterate(
     edges: List[tuple], costs: List[List[float]], start_time: float, threshold=1.9
@@ -90,4 +92,3 @@ def two_opt_swap(edges: List[tuple], costs: List[List[float]], first: int, secon
         return True
     else:
         return False
-
